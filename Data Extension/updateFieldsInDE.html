@@ -1,0 +1,62 @@
+<script runat=server>
+  
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100029986 }); // PME
+  var customerKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+
+  var fields = [
+    {
+      "Name": "Text",
+      "FieldType": "Text",
+      "MaxLength": 50,
+      "DefaultValue": "Hellow world"
+    },
+    {
+      "Name": "Number",
+      "FieldType": "Number"
+    },
+    {
+      "Name": "Date",
+      "FieldType": "Date"
+    },
+    {
+      "Name": "Boolean",
+      "FieldType": "Boolean",
+      "DefaultValue": false
+    },
+    {
+      "Name": "Email",
+      "FieldType": "EmailAddress"
+    },
+    {
+      "Name": "Phone",
+      "FieldType": "Phone"
+    },
+    {
+      "Name": "Decimal",
+      "FieldType": "Decimal",
+      "MaxLength": 18,
+      "Scale": 2
+    },
+    {
+      "Name": "Locale",
+      "FieldType": "Locale"
+    }
+  ];
+
+  try{
+    // Must be an array with the current fields name
+    var result = api.updateItem('DataExtension', {
+      "CustomerKey": customerKey,
+      "Fields": fields
+    });
+
+    Write('<br />');
+    Write(Platform.Function.Stringify(result));
+
+  }catch(e){
+    Write('<br />');
+    Write(Platform.Function.Stringify(e));
+  }
+</script>

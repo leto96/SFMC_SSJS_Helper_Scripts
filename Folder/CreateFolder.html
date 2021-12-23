@@ -1,0 +1,39 @@
+
+<script runat=server>
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100025290 }); // Conta pai
+  // api.setClientId({ "ID": 100029974 }); // Large Accounts
+  // api.setClientId({ "ID": 100029986 }); // PME
+
+var req = api.retrieve("DataFolder", ["ID"], {
+  Property: "Name",
+  SimpleOperator: "equals",
+  Value: "Data Extensions"
+});
+
+var parentFolderId = req.Results[0].ID;
+
+var config = {
+  "Name": "MyNewFolder",
+  "Description": "API Created Folder",
+  "ParentFolder": {
+      ID : parentFolderId,
+      IDSpecified: true
+  },
+  "ContentType": "dataextension"
+};
+
+var result = api.createItem("DataFolder", config);
+
+printObjectWithSpaces('result', result);
+
+function printObjectWithSpaces(title, objectToPrint){
+    Write('<br />');
+    Write(title);
+    Write('<br />');
+    Write(Platform.Function.Stringify(objectToPrint));
+    Write('<br />');
+    Write('<br />');
+  }
+</script>

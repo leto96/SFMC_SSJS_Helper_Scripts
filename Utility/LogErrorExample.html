@@ -1,0 +1,27 @@
+<script runat="server">
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100029974 });
+  var customerKeyLogErrors = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+  
+  try{
+    // All the code here
+  }catch(e){
+    // Write(Platform.Function.Stringify(e));
+    // Log Error
+    var logError = {
+      CustomerKey: customerKeyLogErrors,
+      Properties: [
+        {
+          Name: 'Type',
+          Value: 'Generic Error'
+        },
+        {
+          Name: 'Message',
+          Value: Platform.Function.Stringify(e)
+        }
+      ]
+    };
+    api.createItem('DataExtensionObject', logError);
+  }
+</script>

@@ -1,0 +1,56 @@
+<script runat="server">
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100029986 }); // PME
+  // api.setClientId({ "ID": 100029974 }); // LA
+
+  var folderName = "FolderName";
+  var DataExtensionName = "DataExtensionName";
+  var Description = "Description";
+  var folderFitler = {
+    LeftOperand: {
+      Property: "Name",
+      SimpleOperator: 'equals',
+      Value: folderName
+    },
+    LogicalOperator: "AND",
+    RightOperand: {
+      Property: "ContentType",
+      SimpleOperator: 'equals',
+      Value: 'dataextension'
+    }
+  };
+
+  var fields = [
+    {
+      "Name": "EMAIL",
+      "FieldType": "EmailAddress",
+      "IsPrimaryKey": false,
+      "IsRequired": true,
+      "DefaultValue": "Value",
+      "MaxLength": 20
+    }
+  ];
+  
+  var DataExtension = {
+    "CustomerKey": String(Platform.Function.GUID()).toUpperCase(),
+    "Name": DataExtensionName,
+    "Description": Description,
+    "CategoryID": 0,
+    "Fields": fields
+  };
+
+  try{
+
+    var folderRetreiveResult = api.retrieve('DataFolder', ["ID"],  folderFitler );
+
+    DataExtension.CategoryID = folderRetreiveResult.Results[0].ID;
+
+    var creationResult = api.createItem("DataExtension", DataExtension);
+
+    Write(Stringify(creationResult));
+  }catch(e){
+    Write(Stringify(e));
+  }
+
+</script>

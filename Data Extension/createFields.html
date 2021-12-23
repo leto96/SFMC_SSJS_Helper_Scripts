@@ -1,0 +1,47 @@
+<script runat=server>
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100025290 }); // Conta pai
+  // api.setClientId({ "ID": 100029974 }); // Large Accounts
+  api.setClientId({ "ID": 100029986 }); // PME
+  var customerKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+  
+  var fieldsToCreate = [
+    {
+      'Name': 'FieldName',
+      'FieldType': "Text",
+      'MaxLength': 20
+    },
+    {
+      'Name': 'FieldName2',
+      'FieldType': "Text",
+      'MaxLength': 20
+    }
+  ];
+
+  try{
+    
+    var resultCreateField = api.updateItem('DataExtension', {
+    "CustomerKey": customerKey,
+    "Fields": fieldsToCreate
+    });
+    
+
+    var results = resultCreateField.Results;
+
+    printObjectWithSpaces('results', results);
+
+  }catch(e){
+    Write(Platform.Function.Stringify(e));
+  }
+
+  function printObjectWithSpaces(title, objectToPrint){
+    Write('<br />');
+    Write(title);
+    Write('<br />');
+    Write(Platform.Function.Stringify(objectToPrint));
+    Write('<br />');
+    Write('<br />');
+  }
+
+</script>

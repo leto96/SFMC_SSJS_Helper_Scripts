@@ -1,0 +1,24 @@
+<script runat=server>
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100029974 }); // LA
+  var customerKey = "XXXXXXXXXXXXXXXXXXXXXXX";
+
+  var cols = [ "Name", "CustomerKey", "CategoryID", "ObjectID"];
+
+  var filter = {
+    Property: "DataExtension.CustomerKey",
+    SimpleOperator: "equals",
+    Value: customerKey
+  }
+  try{
+
+  var result = api.retrieve('DataExtension', cols, filter);
+    
+    Write(Platform.Function.Stringify(result));
+
+  }catch(e){
+    Write(Platform.Function.Stringify(e));
+  }
+  
+</script>

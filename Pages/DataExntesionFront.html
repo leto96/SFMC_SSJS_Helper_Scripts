@@ -1,0 +1,150 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Extensions</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.15.3/styles/salesforce-lightning-design-system.min.css"
+      integrity="sha512-CZHaPuEiGaHY7oMzQDCLXe77jneFoAu6XehZX5d3LNJWr99HAPSyM5jZ10IfmR8/v9a01m6m94IV8k7TJl1rMg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      #sidebar ul{
+        padding-left: 10px;
+      }
+
+      ul li{
+        padding-left: 5px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <div id="mydiv"></div>
+
+    <!-- REACT Scripts -->
+    <script type="text/babel">
+      const BASE_URL = 'https://fe3511717164047f701372.pub.s11.sfmc-content.com';
+      const BACKEND_ENDPOINT = '/ukac25r1u24';
+
+      // Main APP
+      function App() {
+        const [itens, setItens] = React.useState([]);
+        const [folders, setFolders] = React.useState([]);
+        const [dataExtensions, setDataExtensions] = React.useState([]);
+        const [rootfolder, setRootfolder] = React.useState({});
+        const [isLoading, setIsLoading] = React.useState(false);
+        const [error, setError] = React.useState('');
+        
+        const currentFoundFolders = React.useRef({});
+        const instance = axios.create({
+          baseURL: BASE_URL,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+          
+        React.useEffect(() => {
+          startRequest();
+        }, []);
+
+        const retriever = () => {
+          return instance.get(BACKEND_ENDPOINT).then(res => {
+            return res.data;
+          }).catch(e => {
+            setError(e.response.data);
+          });
+        }
+
+        const startRequest = async () => {
+          setIsLoading(true);
+          const items = await retriever();
+          setFolders(items.folders);
+          setDataExtensions(items.des);
+          setRootfolder( items.folders.find( folder => folder.ParentFolder.ID === 0 ) );
+          setIsLoading(false);
+        }
+        return (
+          <div id="myApp">
+            <AppHeader />
+            <div id='AppBody'>
+              {isLoading ? <Spinner /> : <SideBar rootfolder={rootfolder} folders={folders} dataExtensions={dataExtensions}/>}
+            </div>
+          </div>
+        );
+      }
+
+      function SideBar({rootfolder, folders, dataExtensions}) {
+        return(
+          <div id="sidebar">
+            <FolderGeneration rootfolder={rootfolder} folders={folders} dataExtensions={dataExtensions} />
+          </div>
+        );
+      }
+
+      function FolderGeneration({rootfolder, folders, dataExtensions}) {
+        let thisFolderChildren = folders.filter( folder => (rootfolder.ID === folder.ParentFolder.ID) );
+        let thisFolderDEs = dataExtensions.filter(dataExtension => dataExtension.CategoryID === rootfolder.ID)
+        const generateLink = (objectId) => `https://mc.s10.exacttarget.com/contactsmeta/admin.html#admin/data-extension/${objectId}/properties/`;
+        return(
+            <ul>{'- ' + rootfolder.Name}
+              {thisFolderChildren.map( childFolder => <FolderGeneration key={childFolder.ID} rootfolder={childFolder} folders={folders} dataExtensions={dataExtensions} /> )}
+              {thisFolderDEs.map( dataExtension => (<li key={dataExtension.ObjectID}><a target="_blank" href={generateLink(dataExtension.ObjectID)}>{dataExtension.Name}</a></li>) )}
+            </ul>
+        );
+      }
+
+      // Spinner
+      function Spinner() {
+        return (
+          <div className="demo-only demo-only_viewport">
+            <div role="status" className="slds-spinner slds-spinner_medium">
+              <span className="slds-assistive-text">Loading</span>
+              <div className="slds-spinner__dot-a"></div>
+              <div className="slds-spinner__dot-b"></div>
+            </div>
+          </div>
+        );
+      }
+
+      // App Header
+      function AppHeader() {
+        return (
+          <div id="myHeader" className="slds-page-header">
+            <div className="slds-page-header__row">
+              <div className="slds-page-header__col-title">
+                <div className="slds-media">
+                  <div className="slds-media__body">
+                    <div className="slds-page-header__name">
+                      <div className="slds-page-header__name-title">
+                        <h1>
+                          <span
+                            className="slds-page-header__title"
+                            title="Data Extension Information"
+                          >
+                            Data Extension Information
+                          </span>
+                        </h1>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      ReactDOM.render(<App />, document.getElementById("mydiv"));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<script runat=server>
+
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+
+  var headers = ["ID",
+    "CreatedDate",
+    "ModifiedDate",
+    "AccountUserID",
+    "UserID",
+    "Name",
+    "Email",
+    "ActiveFlag",
+    "NotificationEmailAddress",
+    "CustomerKey",
+    "DefaultBusinessUnit",
+    // "UserPermissions",
+    "IsLocked",
+    "LastSuccessfulLogin",
+    // "Roles"
+  ];
+
+  var filter = {
+    Property: 'AccountUserID',
+    SimpleOperator: 'equals',
+    Value: 100669102
+  }
+
+  try{
+    
+    var userRetrieveResult = api.retrieve('AccountUser', headers /* , filter */);
+    
+    printRecordsSeparatedValues(userRetrieveResult.Results, headers);
+    // Write(Platform.Function.Stringify(userRetrieveResult));
+
+  }catch(e){
+    Write(Platform.Function.Stringify(e));
+  }
+  
+
+  function printRecordsSeparatedValues(data, headers, separator){
+  // Data must be an array of objects key-value pairs
+  // headers must be an array of strings
+  var delimiter = separator;
+  if(separator === undefined || separator === null){ delimiter = ','};
+
+  Write("\n");
+  for(var i = 0; i < headers.length; i ++){
+    Write(headers[i]);
+    if(i !== headers.length - 1) Write(delimiter);
+  }
+  
+  Write("\n");
+  for(var i = 0; i < data.length; i ++){
+    // Print values
+    for(var j = 0; j < headers.length; j++){
+      Write(Stringify(data[i][headers[j]]));
+      if(j !== headers.length - 1) Write(delimiter);
+    }
+    Write("\n");
+  }
+}
+</script>

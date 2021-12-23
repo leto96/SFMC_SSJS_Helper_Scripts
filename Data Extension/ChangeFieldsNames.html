@@ -1,0 +1,67 @@
+<script runat=server>
+  
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100029986 }); // PME
+  // api.setClientId({ "ID": 100029974 }); // LA
+  var customerKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+
+try{
+  // Must be an array with the current fields name
+  var fieldsGetName = [ "OldFieldName1", "OldFieldName2" ];
+
+  // Must be an array of objects with the new name willing to set and ObjectID (because is mandatory to update)
+  // the old name corresponds to the index of the new name
+  var fieldsSetName = [
+    {
+      "Name": "NewFieldName1",
+      "ObjectID": null
+    },
+    {
+      "Name": "NewFieldName2",
+      "ObjectID": null
+    }
+  ];
+
+  var filter = {
+    Property: "DataExtension.CustomerKey",
+    SimpleOperator: "equals",
+    Value: customerKey
+  };
+
+  var req = api.retrieve("DataExtensionField", ["ObjectID", "Name"], filter);
+  // Write(Platform.Function.Stringify(req));
+
+  var requestResults = req.Results;
+
+  for(var i = 0; i < requestResults.length; i++){
+    // Try to find the current "i" field name in the array of fields in which is wanted to change
+    for(var j = 0; j < fieldsGetName.length; j++){
+      if(fieldsGetName[j] === requestResults[i].Name){
+        fieldsSetName[j].ObjectID = requestResults[i].ObjectID;
+      }
+    } 
+  }
+
+  // Write('<br />');
+  // Write('Fields to update');
+  // Write('<br />');
+  // Write(Platform.Function.Stringify(fieldsSetName));
+  // Write('<br />');
+  
+  var result = api.updateItem("DataExtension", {
+    CustomerKey: customerKey,
+    Fields: fieldsSetName
+  });
+
+  // Write('<br />');
+  // Write('update result');
+  // Write('<br />');
+  // Write(Platform.Function.Stringify(result));
+
+
+}catch(e){
+  Write('<br />');
+  Write(Platform.Function.Stringify(e));
+}
+</script>

@@ -1,0 +1,46 @@
+<script runat=server>
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100025290 }); // Conta pai
+  // api.setClientId({ "ID": 100029974 }); // Large Accounts
+  // api.setClientId({ "ID": 100029986 }); // PME
+
+  // Need to retrieve the ObjectID for the Automation, which isn't available via the SFMC interface.
+  var cols = ["Name", "ProgramID", "IsActive"];
+  var filter = {
+      Property: "CustomerKey",
+      SimpleOperator: "equals",
+      Value: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  };
+  var desc = api.retrieve("Automation", cols, filter);
+  
+    // Output ObjectID if you want to see it. 
+    // Write('<br>ObjectID: ' + desc.Results[0].ObjectID);
+            
+    var props = {
+        ObjectID: desc.Results[0].ObjectID
+    };
+    var action = "start";
+    var opts = {};
+    var res = api.performItem("Automation", props, action, opts);
+    var status = res.Status;
+    var statusCode = res.Results[0].StatusCode;
+
+    Write("status code: " + statusCode);
+
+  try {
+    printObjectWithSpaces('result', result)
+  } catch (error) {
+    printObjectWithSpaces('error', error)
+  }
+
+  function printObjectWithSpaces(title, objectToPrint){
+    Write('<br />');
+    Write(title);
+    Write('<br />');
+    Write(Platform.Function.Stringify(objectToPrint));
+    Write('<br />');
+    Write('<br />');
+  }
+
+</script>

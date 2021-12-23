@@ -1,0 +1,52 @@
+<script runat=server>
+  
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100025290 }); // Conta pai
+  api.setClientId({ "ID": 100029974 }); // Large Accounts
+  // api.setClientId({ "ID": 100029986 }); // PME
+
+  var cols = ["Name", "CustomerKey", "Client.ID"];
+
+  var filter = {
+    Property: "Client.ID",
+    SimpleOperator: "equals",
+    Value: 100029974
+  };
+
+  try{
+    var req = api.retrieve("DataExtension", cols, filter);
+    
+    var results = req.Results;
+
+    printRecordsSeparatedValues(results, cols, ',');
+    // Write(Platform.Function.Stringify(result));
+
+  }catch(e){
+    Write(Platform.Function.Stringify(e));
+  }
+
+  function printRecordsSeparatedValues(data, headers, separator){
+    // Data must be an array of objects key-value pairs
+    // headers must be an array of strings
+    var delimiter = separator;
+    if(separator === undefined || separator === null){ delimiter = ','};
+
+    Write("<br />");
+    for(var i = 0; i < headers.length; i ++){
+      Write(headers[i]);
+      if(i !== headers.length - 1) Write(delimiter);
+    }
+    
+    Write("<br />");
+    for(var i = 0; i < data.length; i ++){
+      // Print values
+      for(var j = 0; j < headers.length; j++){
+        Write(data[i][headers[j]]);
+        if(j !== headers.length - 1) Write(delimiter);
+      }
+      Write("<br />");
+    }
+  }
+  
+</script>

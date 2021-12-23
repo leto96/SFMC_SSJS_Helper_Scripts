@@ -1,0 +1,33 @@
+<script runat=server>
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 00000000, "UserID": 00000000 });
+  var customerKey = "XXXXXXXXXXXXXXXXXXXXXX";
+
+
+  var props = [
+    {
+      Name: 'Column1Name',
+      Value: 'Column1Value'
+    },
+    {
+      Name: 'Column2Name',
+      Value: 'Column2Value'
+    }
+  ]
+  
+  var data = [
+    {
+      CustomerKey: customerKey,
+      Properties: props
+    },
+    {
+      CustomerKey: customerKey,
+      Properties: props
+    }
+  ]
+  
+
+  var result = api.createBatch('DataExtensionObject', data);
+  
+</script>

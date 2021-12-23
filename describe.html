@@ -1,0 +1,15 @@
+<script runat=server>
+
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+
+  try{
+    
+    var result = api.describe('DataFolder');
+    Write(Platform.Function.Stringify(result));
+
+  }catch(e){
+    Write(Platform.Function.Stringify(e));
+  }
+  
+</script>

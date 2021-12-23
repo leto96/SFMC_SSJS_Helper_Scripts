@@ -1,0 +1,44 @@
+<script runat=server>
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100025290 });
+  var customerKey = "3B7DC87A-45BD-4335-B387-676E72C18B31";
+
+  try{
+
+    var props = [
+	{
+		"Name": "Name",
+		"Value": "name"
+  },
+  {
+		"Name": "Key",
+		"Value": "key002"
+  },
+  {
+    "Name": "COUNTRY",
+		"Value": "c"
+  }
+];
+
+var options = {
+	SaveOptions: [
+		{
+			PropertyName: 'COUNTRY',
+			SaveAction: 'UpdateAdd'
+		}
+	]
+};
+
+  var result = api.updateItem('DataExtensionObject', {
+    CustomerKey: customerKey,
+    Properties: props
+  }, options);
+    
+    Write(Platform.Function.Stringify(result));
+
+  }catch(e){
+    Write(Platform.Function.Stringify(e));
+  }
+  
+</script>

@@ -1,0 +1,44 @@
+<script runat="server">
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100029986 });
+
+  var folder = {
+    name: 'Name',
+    id: null
+  }
+  var folderPropertiesToReturn = [ 'Name', 'ID', 'ContentType'];
+
+  // Optional Filter
+  var folderFitler = {
+    LeftOperand: {
+      Property: "Name",
+      SimpleOperator: 'equals',
+      Value: folder.name
+    },
+    LogicalOperator: "AND",
+    RightOperand: {
+      Property: "ContentType",
+      SimpleOperator: 'equals',
+      Value: 'dataextension'
+    }
+  }
+
+  try{
+    
+    var folderRetreiveResult = api.retrieve('DataFolder', folderPropertiesToReturn /* , folderFitler */);
+
+    Write('Result');
+    Write('<br />');
+    Write(Platform.Function.Stringify(folderRetreiveResult));
+    Write('<br />');
+
+
+  }catch(e){
+    Write('<br />');
+    Write('Error');
+    Write('<br />');
+    Write(Platform.Function.Stringify(e));
+    Write('<br />');
+  }
+</script>

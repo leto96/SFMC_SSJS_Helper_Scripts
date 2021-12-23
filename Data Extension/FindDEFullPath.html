@@ -1,0 +1,93 @@
+<script runat="server">
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // Uncomment to change BUs
+  // api.setClientId({ "ID": 100029986 }); // PME
+  // api.setClientId({ "ID": 100029974 }); // LA
+
+  var customerKeys = ["11111111-1111-1111-1111-111111111"];
+  // var DENames = ["name"];
+
+  try{
+    var itensToFind;
+    if(customerKeys && customerKeys.length > 0){
+      itensToFind = customerKeys;
+    }else if(DENames && DENames.length > 0){
+      itensToFind = DENames;
+    }else{
+      Platform.Function.RaiseError('Array to search not found');
+    }
+
+
+    for(var i = 0; i < itensToFind.length; i++){
+      if(customerKeys && customerKeys.length > 0){
+        findDEsFullPath(itensToFind[i], null);
+      }else if(DENames && DENames.length > 0){
+        findDEsFullPath(null, itensToFind[i]);
+      }
+      Write('\n\n');
+    }
+
+  }catch(e){
+    Write(Stringify(e));
+  }
+
+  function findDEsFullPath(customerKey, DEname){
+
+    var DataExtensionFilter = {
+      Property: "CustomerKey",
+      SimpleOperator: 'equals'
+      // Value: customerKey
+    }
+
+    if(DEname){
+      DataExtensionFilter.Property = "Name";
+      DataExtensionFilter.Value = DEname;
+    }
+
+    if(customerKey){
+      DataExtensionFilter.Value = customerKey;
+    }
+
+    var foundDE = api.retrieve('DataExtension', ['Name', 'CustomerKey', "CategoryID"],  DataExtensionFilter );
+
+    // Error: DE not found
+    if(foundDE.Results.length == 0){
+      Platform.Function.RaiseError('DE not Found');
+      return;
+    }
+
+    var DEName = foundDE.Results[0].Name;
+    var folderParentID = foundDE.Results[0].CategoryID;
+    var DEfullpath = [DEName];
+
+    do{
+      // Filter to get the parent folder
+      var folderFitler = {
+        LeftOperand: {
+          Property: "ID",
+          SimpleOperator: 'equals',
+          Value: folderParentID
+        },
+        LogicalOperator: "AND",
+        RightOperand: {
+          Property: "ContentType",
+          SimpleOperator: 'equals',
+          Value: 'dataextension'
+        }
+      };
+
+      // Retrieve the parent folder
+      var folderRetreiveResult = api.retrieve('DataFolder', ["ID", 'ParentFolder.ID', 'Name'],  folderFitler );
+      currentFolderName = folderRetreiveResult.Results[0].Name;
+      folderParentID = folderRetreiveResult.Results[0]["ParentFolder"]["ID"];
+      DEfullpath.unshift(currentFolderName);
+
+    }while(folderParentID != 0)
+    
+    // Build Path String
+    var DEfullpathString = DEfullpath.join(' -> ');
+    Write(Stringify(DEfullpathString));
+  }
+
+</script>

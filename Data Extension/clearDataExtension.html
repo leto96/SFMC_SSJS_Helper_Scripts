@@ -1,0 +1,14 @@
+<script runat=server>
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 00000000, "UserID": 00000000 });
+  var customerKey = "XXXXXXX-XXXX-XX-XXX-XXXXXX";
+
+  var action = "ClearData";
+  var props = {
+    CustomerKey: customerKeyUploadDE
+  };
+  var opts = {};
+  var resultClearData = api.performItem("DataExtension", props, action, opts);
+
+</script>

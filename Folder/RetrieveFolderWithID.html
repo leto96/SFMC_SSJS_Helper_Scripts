@@ -1,0 +1,52 @@
+<script runat="server">
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100029986 }); // PME
+  // api.setClientId({ "ID": 100029974 }); // LA
+  var folderName = "XXXXXXXXXX";
+  
+  var folderFitler = {
+    LeftOperand: {
+      Property: "ID",
+      SimpleOperator: 'equals',
+      Value: 308099
+    },
+    LogicalOperator: "AND",
+    RightOperand: {
+      Property: "ContentType",
+      SimpleOperator: 'equals',
+      Value: 'dataextension'
+    }
+  };
+
+  try{
+
+    var folderRetreiveResult = api.retrieve('DataFolder', ["ID", 'ParentFolder.ID', 'Name'],  folderFitler );
+
+    // Error: DE not found
+    if(folderRetreiveResult.Results.length == 0){
+      Platform.Function.RaiseError('Folder Not Found');
+      return;
+    }
+
+    var folderResult = {
+      folderID: folderRetreiveResult.Results[0].ID,
+      currentFolderName: folderRetreiveResult.Results[0].Name,
+      folderParentID: folderRetreiveResult.Results[0]["ParentFolder"]["ID"]
+    }
+    printObjectWithSpaces('Folder Found', folderResult);
+
+  }catch(e){
+    printObjectWithSpaces('Error', e);
+  }
+
+  function printObjectWithSpaces(title, objectToPrint){
+    Write('<br />');
+    Write(title);
+    Write('<br />');
+    Write(Platform.Function.Stringify(objectToPrint));
+    Write('<br />');
+    Write('<br />');
+  }
+
+</script>

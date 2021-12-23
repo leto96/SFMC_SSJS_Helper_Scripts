@@ -1,0 +1,109 @@
+<script runat=server>
+  Platform.Load("Core", "1.1.5");
+  var api = new Script.Util.WSProxy();
+  // api.setClientId({ "ID": 100025290 }); // Conta pai
+  // api.setClientId({ "ID": 100029974 }); // Large Accounts
+  // api.setClientId({ "ID": 100029986 }); // PME
+
+  // Comment the option in which you don't want to use
+  var customerKeys = ["customerKey"];
+  // var DENames = ["name"];
+
+  try{
+    var itensToFind;
+    if(customerKeys && customerKeys.length > 0){
+      itensToFind = customerKeys;
+    }else if(DENames && DENames.length > 0){
+      itensToFind = DENames;
+    }else{
+      Platform.Function.RaiseError('Array to search not found');
+    }
+
+    for(var i = 0; i < itensToFind.length; i++){
+      if(customerKeys && customerKeys.length > 0){
+        findAndPrintDE(itensToFind[i], null);
+      }else if(DENames && DENames.length > 0){
+        findAndPrintDE(null, itensToFind[i]);
+      }
+    }
+  }catch(e){
+    Write(Stringify(e));
+  }
+
+
+  function findAndPrintDE(customerKey, DEName){
+    var filter = {
+      Property: 'DataExtension.CustomerKey',
+      SimpleOperator: 'equals',
+      Value: ''
+    }
+
+    var cols = [
+        "Name", 
+        "MaxLength", 
+        "IsRequired", 
+        "FieldType", 
+        "DefaultValue", 
+        "Ordinal"
+      ];
+
+    var headers = [
+      "Name",
+      "IsPrimaryKey",
+      "FieldType",
+      "MaxLength"
+    ];
+
+
+    if(DEName){
+      var DataExtensionFilter = {
+        Property: "Name",
+        SimpleOperator: 'equals',
+        Value: DEName
+      }
+
+      // Finde the DE CustomerKey
+      var foundDE = api.retrieve('DataExtension', ['Name', 'CustomerKey'],  DataExtensionFilter );
+      // Error: DE not found
+      if(foundDE.Results.length == 0){
+        Platform.Function.RaiseError(DEName + ' --- DE not Found');
+      }
+
+      // Set to find Fields of the DE with the name specified
+      filter.Value = foundDE.Results[0].CustomerKey;
+    }
+
+    if(customerKey){
+      filter.Value = customerKey;
+    }
+
+    var result = api.retrieve("DataExtensionField", cols, filter);
+    var results = result.Results;
+
+    printRecordsSeparatedValues(results, headers, ',');
+  }
+
+  function printRecordsSeparatedValues(data, headers, separator){
+    // Data must be an array of objects key-value pairs
+    // headers must be an array of strings
+    var delimiter = separator;
+    if(separator === undefined || separator === null){ delimiter = ','};
+
+    Write("\n");
+    for(var i = 0; i < headers.length; i ++){
+      Write(headers[i]);
+      if(i !== headers.length - 1) Write(delimiter);
+    }
+    
+    Write("\n");
+    for(var i = 0; i < data.length; i ++){
+      // Print values
+      for(var j = 0; j < headers.length; j++){
+        Write(data[i][headers[j]]);
+        if(j !== headers.length - 1) Write(delimiter);
+      }
+      Write("\n");
+    }
+  }
+  
+</script>
