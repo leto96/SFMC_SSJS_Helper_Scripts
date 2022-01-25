@@ -4,11 +4,20 @@ function DataExtensionRecordsOperator(configuration){
   
   if(!configuration) Platform.Function.RaiseError('An configuration Object is required');
   if(!configuration.api) Platform.Function.RaiseError('Api attribute is required');
-  if(!configuration.dataExtensionCustomerKey) Platform.Function.RaiseError('dataExtensionCustomerKey attribute is required');
+  if(!configuration.dataExtensionCustomerKey || configuration.dataExtensionName) Platform.Function.RaiseError('dataExtensionCustomerKey or dataExtensionName attribute is required');
   if(typeof configuration.dataExtensionCustomerKey != 'string') Platform.Function.RaiseError('dataExtensionCustomerKey must be a String');
-  
   api = configuration.api;
-  customerKey = configuration.dataExtensionCustomerKey;
+  
+  if(configuration.dataExtensionCustomerKey == null || configuration.dataExtensionCustomerKey == ''){
+    var simpleFilter = {
+      Property: 'Name',
+      SimpleOperator: 'equals',
+      Value: configuration.dataExtensionName
+    }
+    customerKey = api.retrieve("DataExtension", ["CustomerKey"], simpleFilter)[0].CustomerKey;
+  }else{
+    customerKey = configuration.dataExtensionCustomerKey;
+  }
 
   function getRecords(options){
     // options Object can have filter or headers
