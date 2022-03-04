@@ -77,6 +77,58 @@ function DataExtensionRecordsOperator(configuration){
     
   }
 
+  function pipeExecuteInAllRecords(options, cb){
+    // options Object can have filter or headers
+    if(!!options && typeof options != 'object') Platform.Function.RaiseError('Options must be an object or omitted');
+        
+    var filter;
+    headers = retrieveFieldNames(customerKey, api);
+
+    if(!!options && options.filter) filter = options.filter;
+
+    var config = {
+      customerKey: customerKey,
+      cols: headers
+    }
+  
+    var records = [],
+    moreData = true,
+    reqID = data = null;
+
+    while (moreData) {
+      moreData = false;
+      if (reqID == null) {
+        if(filter == undefined || filter == null){
+          data = api.retrieve("DataExtensionObject[" + config.customerKey + "]", config.cols);
+        }else{
+          data = api.retrieve("DataExtensionObject[" + config.customerKey + "]", config.cols, filter);
+        }
+        if(data.Status.substring(0, 5) == 'Error'){
+          Platform.Function.RaiseError('Something went wrong: ' + data.Status);
+        }
+      } else {
+        data = api.getNextBatch("DataExtensionObject[" + config.customerKey + "]", reqID);
+      }
+
+      if (data != null) {
+        moreData = data.HasMoreRows;
+        reqID = data.RequestID;
+        for (var i = 0; i < data.Results.length; i++) {
+          var result_list = data.Results[i].Properties;
+          var obj = {};
+          for (k in result_list) {
+            var key = result_list[k].Name;
+            var val = result_list[k].Value
+            if (key.indexOf("_") != 0) obj[key] = val;
+          }
+        records.push(obj);
+        }
+        cb(records);
+        records = []; // clear records, free up memory
+      }
+    }
+  }
+
   function retrieveFieldNames(customerKey, api) {
     var filter = {
       Property: "DataExtension.CustomerKey",
@@ -94,7 +146,8 @@ function DataExtensionRecordsOperator(configuration){
   }
 
   return {
-    getRecords: getRecords
+    getRecords: getRecords,
+    pipeExecuteInAllRecords: pipeExecuteInAllRecords
   }
 }
 
